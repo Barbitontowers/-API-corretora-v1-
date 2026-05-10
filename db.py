@@ -1,13 +1,43 @@
-import sqlite3
+import os
 import bcrypt
 
 # =========================
 # CONEXÃO
+# Usa PostgreSQL na nuvem (DATABASE_URL),
+# SQLite localmente para desenvolvimento
 # =========================
-def conectar():
-    conn = sqlite3.connect("carteira.db")
-    conn.row_factory = sqlite3.Row  # permite acessar colunas por nome
-    return conn
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if DATABASE_URL:
+    import psycopg2
+    import psycopg2.extras
+
+    def conectar():
+        conn = psycopg2.connect(DATABASE_URL)
+        return conn
+
+    def cursor_dict(conn):
+        return conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    PLACEHOLDER = "%s"
+
+else:
+    import sqlite3
+
+    def conectar():
+        conn = sqlite3.connect("carteira.db")
+        conn.row_factory = sqlite3.Row
+        return conn
+
+    def cursor_dict(conn):
+        return conn.cursor()
+
+    PLACEHOLDER = "?"
+
+
+def P(n=1):
+    """Retorna n placeholders corretos para o banco ativo."""
+    return ", ".join([PLACEHOLDER] * n)
 
 
 # =========================
@@ -15,19 +45,19 @@ def conectar():
 # =========================
 def criar_tabelas():
     conn = conectar()
-    cursor = conn.cursor()
+    cursor = cursor_dict(conn)
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS usuarios (
-        id    INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT    UNIQUE NOT NULL,
-        senha TEXT    NOT NULL
+        id    SERIAL PRIMARY KEY,
+        email TEXT   UNIQUE NOT NULL,
+        senha TEXT   NOT NULL
     )
     """)
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS ativos (
-        id      INTEGER PRIMARY KEY AUTOINCREMENT,
+        id      SERIAL  PRIMARY KEY,
         user_id INTEGER NOT NULL,
         ticker  TEXT    NOT NULL,
         tipo    TEXT    NOT NULL,
@@ -37,11 +67,11 @@ def criar_tabelas():
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS posicoes (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id     INTEGER NOT NULL,
-        ativo_id    INTEGER NOT NULL,
-        quantidade  REAL    NOT NULL,
-        preco       REAL    NOT NULL,
+        id         SERIAL  PRIMARY KEY,
+        user_id    INTEGER NOT NULL,
+        ativo_id   INTEGER NOT NULL,
+        quantidade REAL    NOT NULL,
+        preco      REAL    NOT NULL,
         FOREIGN KEY(user_id)  REFERENCES usuarios(id),
         FOREIGN KEY(ativo_id) REFERENCES ativos(id)
     )
@@ -55,15 +85,13 @@ def criar_tabelas():
 # CRIAR USUÁRIO
 # =========================
 def criar_usuario(email: str, senha: str) -> dict:
-    """
-    Cria um novo usuário com senha hasheada.
-    Retorna {"ok": True} ou lança ValueError se o e-mail já existir.
-    """
     conn = conectar()
-    cursor = conn.cursor()
+    cursor = cursor_dict(conn)
 
-    # verifica duplicata
-    cursor.execute("SELECT id FROM usuarios WHERE email = ?", (email,))
+    cursor.execute(
+        f"SELECT id FROM usuarios WHERE email = {PLACEHOLDER}",
+        (email,)
+    )
     if cursor.fetchone():
         conn.close()
         raise ValueError("Usuário já existe")
@@ -71,7 +99,7 @@ def criar_usuario(email: str, senha: str) -> dict:
     senha_hash = bcrypt.hashpw(senha.encode(), bcrypt.gensalt()).decode()
 
     cursor.execute(
-        "INSERT INTO usuarios (email, senha) VALUES (?, ?)",
+        f"INSERT INTO usuarios (email, senha) VALUES ({P(2)})",
         (email, senha_hash)
     )
     conn.commit()
@@ -83,16 +111,12 @@ def criar_usuario(email: str, senha: str) -> dict:
 # =========================
 # AUTENTICAR USUÁRIO
 # =========================
-def autenticar_usuario(email: str, senha: str) -> int | None:
-    """
-    Verifica e-mail e senha.
-    Retorna o user_id se válido, ou None caso contrário.
-    """
+def autenticar_usuario(email: str, senha: str):
     conn = conectar()
-    cursor = conn.cursor()
+    cursor = cursor_dict(conn)
 
     cursor.execute(
-        "SELECT id, senha FROM usuarios WHERE email = ?",
+        f"SELECT id, senha FROM usuarios WHERE email = {PLACEHOLDER}",
         (email,)
     )
     row = cursor.fetchone()
@@ -101,9 +125,12 @@ def autenticar_usuario(email: str, senha: str) -> int | None:
     if not row:
         return None
 
-    senha_ok = bcrypt.checkpw(senha.encode(), row["senha"].encode())
+    senha_hash = row["senha"] if isinstance(row, dict) else row[1]
+    user_id    = row["id"]   if isinstance(row, dict) else row[0]
 
-    return row["id"] if senha_ok else None
+    senha_ok = bcrypt.checkpw(senha.encode(), senha_hash.encode())
+
+    return user_id if senha_ok else None
 
 
 # =========================
@@ -111,15 +138,22 @@ def autenticar_usuario(email: str, senha: str) -> int | None:
 # =========================
 def criar_ativo(user_id: int, ticker: str, tipo: str) -> dict:
     conn = conectar()
-    cursor = conn.cursor()
+    cursor = cursor_dict(conn)
 
     cursor.execute(
-        "INSERT INTO ativos (user_id, ticker, tipo) VALUES (?, ?, ?)",
+        f"INSERT INTO ativos (user_id, ticker, tipo) VALUES ({P(3)})",
         (user_id, ticker.upper(), tipo)
     )
-    ativo_id = cursor.lastrowid
     conn.commit()
+
+    cursor.execute(
+        f"SELECT id FROM ativos WHERE user_id = {PLACEHOLDER} AND ticker = {PLACEHOLDER} ORDER BY id DESC LIMIT 1",
+        (user_id, ticker.upper())
+    )
+    row = cursor.fetchone()
     conn.close()
+
+    ativo_id = row["id"] if isinstance(row, dict) else row[0]
 
     return {"id": ativo_id, "ticker": ticker.upper(), "tipo": tipo}
 
@@ -127,12 +161,12 @@ def criar_ativo(user_id: int, ticker: str, tipo: str) -> dict:
 # =========================
 # LISTAR ATIVOS
 # =========================
-def listar_ativos(user_id: int) -> list[dict]:
+def listar_ativos(user_id: int) -> list:
     conn = conectar()
-    cursor = conn.cursor()
+    cursor = cursor_dict(conn)
 
     cursor.execute(
-        "SELECT id, ticker, tipo FROM ativos WHERE user_id = ?",
+        f"SELECT id, ticker, tipo FROM ativos WHERE user_id = {PLACEHOLDER}",
         (user_id,)
     )
     rows = cursor.fetchall()
@@ -142,15 +176,14 @@ def listar_ativos(user_id: int) -> list[dict]:
 
 
 # =========================
-# CRIAR POSIÇÃO (COMPRA)
+# CRIAR POSIÇÃO
 # =========================
 def criar_posicao(user_id: int, ativo_id: int, quantidade: float, preco: float) -> dict:
     conn = conectar()
-    cursor = conn.cursor()
+    cursor = cursor_dict(conn)
 
-    # valida que o ativo pertence ao usuário
     cursor.execute(
-        "SELECT id FROM ativos WHERE id = ? AND user_id = ?",
+        f"SELECT id FROM ativos WHERE id = {PLACEHOLDER} AND user_id = {PLACEHOLDER}",
         (ativo_id, user_id)
     )
     if not cursor.fetchone():
@@ -158,7 +191,7 @@ def criar_posicao(user_id: int, ativo_id: int, quantidade: float, preco: float) 
         raise ValueError("Ativo não encontrado para este usuário")
 
     cursor.execute(
-        "INSERT INTO posicoes (user_id, ativo_id, quantidade, preco) VALUES (?, ?, ?, ?)",
+        f"INSERT INTO posicoes (user_id, ativo_id, quantidade, preco) VALUES ({P(4)})",
         (user_id, ativo_id, quantidade, preco)
     )
     conn.commit()
@@ -172,11 +205,11 @@ def criar_posicao(user_id: int, ativo_id: int, quantidade: float, preco: float) 
 # =========================
 def get_carteira(user_id: int) -> dict:
     conn = conectar()
-    cursor = conn.cursor()
+    cursor = cursor_dict(conn)
 
-    cursor.execute("""
+    cursor.execute(f"""
         SELECT
-            a.id          AS ativo_id,
+            a.id                            AS ativo_id,
             a.ticker,
             a.tipo,
             SUM(p.quantidade)               AS quantidade,
@@ -184,7 +217,7 @@ def get_carteira(user_id: int) -> dict:
             SUM(p.quantidade * p.preco)     AS valor_investido
         FROM posicoes p
         JOIN ativos   a ON a.id = p.ativo_id
-        WHERE p.user_id = ?
+        WHERE p.user_id = {PLACEHOLDER}
         GROUP BY a.id, a.ticker, a.tipo
         ORDER BY valor_investido DESC
     """, (user_id,))
@@ -193,18 +226,19 @@ def get_carteira(user_id: int) -> dict:
     conn.close()
 
     ativos = []
-    total_investido = 0.0
+    total  = 0.0
 
     for r in rows:
         item = dict(r)
-        item["valor_total"] = round(item["quantidade"] * item["preco_medio"], 2)
-        item["preco_medio"] = round(item["preco_medio"], 2)
-        item["quantidade"]  = round(item["quantidade"], 4)
-        total_investido    += item["valor_investido"]
+        item["valor_total"]     = round(float(item["quantidade"]) * float(item["preco_medio"]), 2)
+        item["preco_medio"]     = round(float(item["preco_medio"]), 2)
+        item["quantidade"]      = round(float(item["quantidade"]), 4)
+        item["valor_investido"] = round(float(item["valor_investido"]), 2)
+        total += item["valor_investido"]
         ativos.append(item)
 
     return {
         "user_id":          user_id,
-        "patrimonio_total": round(total_investido, 2),
+        "patrimonio_total": round(total, 2),
         "ativos":           ativos
     }
