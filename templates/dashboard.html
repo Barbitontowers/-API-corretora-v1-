@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Carteira Profissional</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>📊 Painel de Investimentos</h1>
+
+    <div class="login-box">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="senha" placeholder="Senha">
+        <button onclick="login()">Entrar</button>
+    </div>
+
+    <hr>
+
+    <div class="acoes">
+        <button onclick="carregarCarteira()">📈 Ver Carteira</button>
+    </div>
+
+    <div id="resultado"></div>
+
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
