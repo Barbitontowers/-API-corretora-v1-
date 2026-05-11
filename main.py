@@ -179,3 +179,21 @@ def carteira(user_id: int = Depends(get_user_id)):
     except Exception as e:
         print("🔥 ERRO CARTEIRA:", repr(e))
         raise HTTPException(status_code=500, detail="Erro ao carregar carteira")
+
+
+# ---------- PREÇOS ----------
+
+@app.get("/precos", tags=["Preços"])
+def precos(user_id: int = Depends(get_user_id)):
+    try:
+        ativos = db.listar_ativos(user_id)
+        if not ativos:
+            return {}
+
+        from precos import buscar_precos
+        resultado = buscar_precos(ativos)
+        return resultado
+
+    except Exception as e:
+        print("🔥 ERRO PRECOS:", repr(e))
+        raise HTTPException(status_code=500, detail="Erro ao buscar preços")
