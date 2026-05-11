@@ -3,37 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Corretora IA — Dashboard</title>
+<title>Corretora IA</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0d1117;color:#e6edf3;font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
-.topbar{background:#161b22;border-bottom:0.5px solid #30363d;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-size:15px;font-weight:500;color:#e6edf3;display:flex;align-items:center;gap:8px}
+body{background:#0d1117;color:#e6edf3;font-family:system-ui,-apple-system,sans-serif}
+.topbar{background:#161b22;border-bottom:0.5px solid #30363d;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.logo{font-size:15px;font-weight:500;display:flex;align-items:center;gap:8px}
 .logo i{color:#58a6ff;font-size:18px}
 .topbar-right{display:flex;align-items:center;gap:10px}
-.tag-update{font-size:11px;color:#484f58}
-.btn-sec{background:#21262d;border:0.5px solid #30363d;color:#e6edf3;border-radius:6px;padding:7px 14px;font-size:13px;cursor:pointer}
-.btn-sec:hover{background:#30363d}
-.main{padding:24px;max-width:1200px;margin:0 auto}
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:28px}
+.tag-upd{font-size:11px;color:#484f58}
+.btn-sm{background:#21262d;border:0.5px solid #30363d;color:#e6edf3;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer}
+.btn-sm:hover{background:#30363d}
+.nav{background:#161b22;border-bottom:0.5px solid #30363d;padding:0 24px;display:flex;gap:4px}
+.nav-tab{padding:12px 16px;font-size:13px;color:#8b949e;cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px}
+.nav-tab.active{color:#58a6ff;border-bottom-color:#58a6ff}
+.nav-tab:hover:not(.active){color:#c9d1d9}
+.page{display:none;padding:24px;max-width:1200px;margin:0 auto}
+.page.active{display:block}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
 .metric{background:#161b22;border:0.5px solid #30363d;border-radius:10px;padding:16px 18px}
 .metric-label{font-size:11px;color:#8b949e;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
-.metric-value{font-size:20px;font-weight:500;color:#e6edf3}
-.metric-sub{font-size:12px;margin-top:4px}
-.positive{color:#3fb950}
-.negative{color:#f85149}
-.neutral{color:#8b949e}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.metric-value{font-size:20px;font-weight:500}
+.metric-sub{font-size:12px;margin-top:3px}
+.positive{color:#3fb950}.negative{color:#f85149}.neutral{color:#8b949e}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
 @media(max-width:640px){.grid2{grid-template-columns:1fr}}
-.card{background:#161b22;border:0.5px solid #30363d;border-radius:10px;padding:20px}
+.card{background:#161b22;border:0.5px solid #30363d;border-radius:10px;padding:20px;margin-bottom:16px}
 .card-title{font-size:13px;font-weight:500;color:#8b949e;margin-bottom:16px;display:flex;align-items:center;gap:6px}
-.card-title i{font-size:15px}
 .card-title .spacer{flex:1}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{color:#8b949e;font-weight:400;text-align:left;padding:8px 10px;border-bottom:0.5px solid #30363d;white-space:nowrap}
-td{padding:9px 10px;border-bottom:0.5px solid #21262d;color:#e6edf3;white-space:nowrap}
+td{padding:9px 10px;border-bottom:0.5px solid #21262d;white-space:nowrap}
 tr:last-child td{border-bottom:none}
 .ticker{font-weight:500;color:#58a6ff}
 .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px}
@@ -63,7 +65,7 @@ select option{background:#161b22}
 .tab.active{background:#21262d;border-color:#30363d;color:#e6edf3}
 .donut-wrap{position:relative;display:flex;align-items:center;justify-content:center;height:180px}
 .donut-center{position:absolute;text-align:center;pointer-events:none}
-.donut-center .big{font-size:18px;font-weight:500;color:#e6edf3}
+.donut-center .big{font-size:18px;font-weight:500}
 .donut-center .sm{font-size:11px;color:#8b949e}
 .legend{margin-top:12px;display:flex;flex-direction:column;gap:6px}
 .leg-item{display:flex;align-items:center;justify-content:space-between;font-size:12px}
@@ -78,7 +80,18 @@ select option{background:#161b22}
 .hidden{display:none}
 .spin{animation:spin 1s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
-.preco-loading{color:#484f58;font-size:12px}
+.risco-gauge{text-align:center;padding:16px 0}
+.risco-score{font-size:48px;font-weight:500;line-height:1}
+.risco-nivel{font-size:14px;margin-top:6px}
+.sugestao{background:#0d1117;border:0.5px solid #30363d;border-radius:6px;padding:10px 14px;font-size:13px;color:#c9d1d9;margin-bottom:8px;display:flex;align-items:flex-start;gap:8px}
+.sugestao i{color:#e3b341;flex-shrink:0;margin-top:1px}
+.ibov-compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.ibov-card{background:#0d1117;border:0.5px solid #30363d;border-radius:8px;padding:14px 16px;text-align:center}
+.ibov-label{font-size:11px;color:#8b949e;margin-bottom:6px;text-transform:uppercase}
+.ibov-val{font-size:22px;font-weight:500}
+.ibov-sub{font-size:12px;color:#8b949e;margin-top:4px}
+.empty-state{text-align:center;padding:40px 20px;color:#8b949e;font-size:13px}
+.empty-state i{font-size:32px;display:block;margin-bottom:10px;color:#30363d}
 </style>
 </head>
 <body>
@@ -86,13 +99,20 @@ select option{background:#161b22}
   <div class="topbar">
     <div class="logo"><i class="ti ti-chart-candle"></i> Corretora IA</div>
     <div class="topbar-right">
-      <span class="tag-update" id="ultima-atualizacao"></span>
-      <button class="btn-sec hidden" id="logout-btn" onclick="logout()">
-        <i class="ti ti-logout" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Sair
-      </button>
+      <span class="tag-upd" id="tag-upd"></span>
+      <button class="btn-sm hidden" id="logout-btn" onclick="logout()">Sair</button>
     </div>
   </div>
 
+  <!-- NAV ABAS -->
+  <div class="nav hidden" id="main-nav">
+    <div class="nav-tab active" onclick="irPara('carteira',this)"><i class="ti ti-briefcase"></i> Carteira</div>
+    <div class="nav-tab" onclick="irPara('analise',this)"><i class="ti ti-shield-check"></i> Risco</div>
+    <div class="nav-tab" onclick="irPara('historico',this)"><i class="ti ti-chart-line"></i> Histórico</div>
+    <div class="nav-tab" onclick="irPara('operacoes',this)"><i class="ti ti-plus"></i> Operações</div>
+  </div>
+
+  <!-- LOGIN -->
   <div id="login-screen" class="login-wrap">
     <div class="login-card">
       <div class="login-title">Acesse sua carteira</div>
@@ -105,105 +125,104 @@ select option{background:#161b22}
         <div class="tab active" onclick="setTab('login',this)">Entrar</div>
         <div class="tab" onclick="setTab('registro',this)">Criar conta</div>
       </div>
-      <div class="field">
-        <label>E-mail</label>
-        <input type="email" id="email" placeholder="seu@email.com">
-      </div>
-      <div class="field">
-        <label>Senha</label>
-        <input type="password" id="senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')autenticar()">
-      </div>
+      <div class="field"><label>E-mail</label><input type="email" id="email" placeholder="seu@email.com"></div>
+      <div class="field"><label>Senha</label><input type="password" id="senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')autenticar()"></div>
       <button class="btn" id="auth-btn" onclick="autenticar()">Entrar</button>
       <div id="auth-msg"></div>
     </div>
   </div>
 
-  <div id="dashboard-screen" class="hidden">
-    <div class="main">
-      <div class="metrics" id="metrics-row"></div>
-
-      <div class="grid2">
-        <div class="card">
-          <div class="card-title">
-            <i class="ti ti-chart-donut"></i> Alocação por ativo
-            <span class="spacer"></span>
-            <button class="btn-sec" onclick="carregarTudo()" style="padding:4px 10px;font-size:12px">
-              <i class="ti ti-refresh" id="refresh-icon"></i>
-            </button>
-          </div>
-          <div class="donut-wrap">
-            <canvas id="donut-chart" height="180"></canvas>
-            <div class="donut-center">
-              <div class="big" id="donut-total">—</div>
-              <div class="sm">atual</div>
-            </div>
-          </div>
-          <div class="legend" id="donut-legend"></div>
+  <!-- CARTEIRA -->
+  <div id="page-carteira" class="page active">
+    <div class="metrics" id="metrics-row"></div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-chart-donut"></i> Alocação por ativo<span class="spacer"></span>
+          <button class="btn-sm" onclick="carregarTudo()"><i class="ti ti-refresh" id="ref-icon"></i></button>
         </div>
-
-        <div class="card">
-          <div class="card-title"><i class="ti ti-layout-distribute-horizontal"></i> Alocação por tipo</div>
-          <div id="tipo-bars" style="margin-top:8px"></div>
+        <div class="donut-wrap"><canvas id="donut-chart" height="180"></canvas>
+          <div class="donut-center"><div class="big" id="donut-total">—</div><div class="sm">atual</div></div>
         </div>
+        <div class="legend" id="donut-legend"></div>
       </div>
-
-      <div class="card" style="margin-bottom:28px">
-        <div class="card-title"><i class="ti ti-list"></i> Posições</div>
-        <div style="overflow-x:auto">
-          <table>
-            <thead>
-              <tr>
-                <th>Ticker</th><th>Tipo</th><th>Qtd</th>
-                <th>P.M.</th><th>Preço atual</th>
-                <th>Investido</th><th>Valor atual</th><th>Lucro/Prej.</th><th>Var%</th>
-              </tr>
-            </thead>
-            <tbody id="tabela-ativos"></tbody>
-          </table>
-        </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-layout-distribute-horizontal"></i> Por tipo</div>
+        <div id="tipo-bars" style="margin-top:8px"></div>
       </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-list"></i> Posições</div>
+      <div style="overflow-x:auto">
+        <table><thead><tr><th>Ticker</th><th>Tipo</th><th>Qtd</th><th>P.M.</th><th>Preço atual</th><th>Investido</th><th>Valor atual</th><th>Lucro/Prej.</th><th>Var%</th></tr></thead>
+        <tbody id="tabela-ativos"></tbody></table>
+      </div>
+    </div>
+  </div>
 
-      <div class="grid2">
-        <div class="card">
-          <div class="card-title"><i class="ti ti-plus"></i> Cadastrar ativo</div>
-          <div class="add-form">
-            <input type="text" id="n-ticker" placeholder="Ex: VALE3" style="text-transform:uppercase">
-            <select id="n-tipo">
-              <option value="acao">Ação</option>
-              <option value="fii">FII</option>
-              <option value="cripto">Cripto</option>
-              <option value="renda_fixa">Renda fixa</option>
-            </select>
-            <button class="btn" onclick="addAtivo()">Adicionar ativo</button>
-          </div>
-          <div id="ativo-msg"></div>
-        </div>
+  <!-- ANÁLISE DE RISCO -->
+  <div id="page-analise" class="page">
+    <div id="analise-content"><div class="empty-state"><i class="ti ti-shield"></i>Carregando análise...</div></div>
+  </div>
 
-        <div class="card">
-          <div class="card-title"><i class="ti ti-receipt"></i> Registrar compra</div>
-          <div class="add-form">
-            <input type="number" id="p-ativo-id" placeholder="ID do ativo" min="1" step="1">
-            <input type="number" id="p-qtd" placeholder="Quantidade" step="any" min="0">
-            <input type="number" id="p-preco" placeholder="Preço unitário (R$)" step="any" min="0" style="grid-column:1/-1">
-            <button class="btn" onclick="addPosicao()">Registrar compra</button>
-          </div>
-          <div id="posicao-msg"></div>
+  <!-- HISTÓRICO -->
+  <div id="page-historico" class="page">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-line"></i> Evolução do patrimônio (90 dias)</div>
+      <div style="height:280px"><canvas id="historico-chart"></canvas></div>
+    </div>
+    <div class="card" id="ibov-card">
+      <div class="card-title"><i class="ti ti-arrows-exchange"></i> Sua carteira vs Ibovespa</div>
+      <div id="ibov-content"><div class="empty-state"><i class="ti ti-chart-bar"></i>Dados sendo carregados...</div></div>
+    </div>
+  </div>
+
+  <!-- OPERAÇÕES -->
+  <div id="page-operacoes" class="page">
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-plus"></i> Cadastrar ativo</div>
+        <div class="add-form">
+          <input type="text" id="n-ticker" placeholder="Ex: VALE3" style="text-transform:uppercase">
+          <select id="n-tipo">
+            <option value="acao">Ação</option><option value="fii">FII</option>
+            <option value="cripto">Cripto</option><option value="renda_fixa">Renda fixa</option>
+          </select>
+          <button class="btn" onclick="addAtivo()">Adicionar ativo</button>
         </div>
+        <div id="ativo-msg"></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-receipt"></i> Registrar compra</div>
+        <div class="add-form">
+          <input type="number" id="p-ativo-id" placeholder="ID do ativo" min="1" step="1">
+          <input type="number" id="p-qtd" placeholder="Quantidade" step="any" min="0">
+          <input type="number" id="p-preco" placeholder="Preço unitário (R$)" step="any" min="0" style="grid-column:1/-1">
+          <button class="btn" onclick="addPosicao()">Registrar compra</button>
+        </div>
+        <div id="posicao-msg"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-list-details"></i> Ativos cadastrados</div>
+      <div style="overflow-x:auto">
+        <table><thead><tr><th>ID</th><th>Ticker</th><th>Tipo</th></tr></thead>
+        <tbody id="tabela-ativos-lista"></tbody></table>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-let TOKEN=null,API='',donutChart=null,currentTab='login';
-let dadosCarteira=[],dadosPrecos={};
-
+let TOKEN=null,API='',donutChart=null,histChart=null,currentTab='login';
+let dadosPrecos={},dadosAnalise={};
 const CORES=['#58a6ff','#3fb950','#e3b341','#d2a8ff','#f85149','#79c0ff','#56d364','#ffa657','#ff7b72','#a5d6ff'];
 const TIPO_CORES={acao:'#58a6ff',fii:'#3fb950',cripto:'#e3b341',renda_fixa:'#d2a8ff'};
 const TIPO_LABEL={acao:'Ação',fii:'FII',cripto:'Cripto',renda_fixa:'Renda fixa'};
 
 function fmt(v){return 'R$ '+(+v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtPct(v){return (v>=0?'+':'')+v.toFixed(2)+'%';}
 function setTab(t,el){currentTab=t;document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');document.getElementById('auth-btn').textContent=t==='login'?'Entrar':'Criar conta';}
+function irPara(p,el){document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(e=>e.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');el.classList.add('active');}
 
 async function autenticar(){
   API=document.getElementById('api-url').value.replace(/\/$/,'');
@@ -218,114 +237,141 @@ async function autenticar(){
     if(data.token){
       TOKEN=data.token;
       document.getElementById('login-screen').classList.add('hidden');
-      document.getElementById('dashboard-screen').classList.remove('hidden');
+      document.getElementById('main-nav').classList.remove('hidden');
       document.getElementById('logout-btn').classList.remove('hidden');
       carregarTudo();
     }else{showMsg('auth-msg',data.detail||'Erro','err');document.getElementById('auth-btn').textContent='Entrar';}
-  }catch(e){showMsg('auth-msg','Não foi possível conectar à API','err');document.getElementById('auth-btn').textContent='Entrar';}
+  }catch(e){showMsg('auth-msg','Não foi possível conectar','err');document.getElementById('auth-btn').textContent='Entrar';}
 }
 
-function logout(){TOKEN=null;API='';document.getElementById('login-screen').classList.remove('hidden');document.getElementById('dashboard-screen').classList.add('hidden');document.getElementById('logout-btn').classList.add('hidden');if(donutChart){donutChart.destroy();donutChart=null;}}
+function logout(){
+  TOKEN=null;API='';
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('main-nav').classList.add('hidden');
+  document.getElementById('logout-btn').classList.add('hidden');
+  if(donutChart){donutChart.destroy();donutChart=null;}
+  if(histChart){histChart.destroy();histChart=null;}
+}
 
 async function carregarTudo(){
-  const icon=document.getElementById('refresh-icon');
+  const icon=document.getElementById('ref-icon');
   icon.classList.add('spin');
   try{
-    const [resCart,resPrecos]=await Promise.all([
+    const [rCart,rPrecos,rAnalise,rHist]=await Promise.all([
       fetch(API+'/carteira',{headers:{Authorization:'Bearer '+TOKEN}}),
-      fetch(API+'/precos',{headers:{Authorization:'Bearer '+TOKEN}})
+      fetch(API+'/precos',{headers:{Authorization:'Bearer '+TOKEN}}),
+      fetch(API+'/analise',{headers:{Authorization:'Bearer '+TOKEN}}),
+      fetch(API+'/historico',{headers:{Authorization:'Bearer '+TOKEN}})
     ]);
-    if(resCart.status===401){logout();return;}
-    dadosCarteira=(await resCart.json()).ativos||[];
-    dadosPrecos=await resPrecos.json();
-    const cartData=await (await fetch(API+'/carteira',{headers:{Authorization:'Bearer '+TOKEN}})).json();
-    renderTudo(cartData);
-    document.getElementById('ultima-atualizacao').textContent='Atualizado '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    if(rCart.status===401){logout();return;}
+    const cart=await rCart.json();
+    dadosPrecos=await rPrecos.json();
+    dadosAnalise=await rAnalise.json();
+    const hist=await rHist.json();
+    const ativos=await (await fetch(API+'/ativos',{headers:{Authorization:'Bearer '+TOKEN}})).json();
+
+    renderCarteira(cart);
+    renderAnalise(dadosAnalise);
+    renderHistorico(hist,dadosAnalise);
+    renderAtivosList(ativos);
+    document.getElementById('tag-upd').textContent='Atualizado '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
   }catch(e){console.error(e);}
   icon.classList.remove('spin');
 }
 
-function calcValorAtual(a){
-  const p=dadosPrecos[a.ticker];
-  if(p==null||p===undefined) return null;
-  return +(a.quantidade)*p;
-}
+function calcVal(a){const p=dadosPrecos[a.ticker];return p!=null?+(a.quantidade)*p:null;}
 
-function renderTudo(data){
+function renderCarteira(data){
   const ativos=data.ativos||[];
-  let totalAtual=0,totalInvest=0;
-  ativos.forEach(a=>{
-    const va=calcValorAtual(a);
-    totalAtual+=(va!=null?va:(+a.valor_investido||0));
-    totalInvest+=(+a.valor_investido||0);
-  });
-  const lucroTotal=totalAtual-totalInvest;
-  const varTotal=totalInvest>0?(lucroTotal/totalInvest*100):0;
-
+  let totAtual=0,totInv=0;
+  ativos.forEach(a=>{const v=calcVal(a);totAtual+=(v!=null?v:+(a.valor_investido||0));totInv+=+(a.valor_investido||0);});
+  const lucro=totAtual-totInv;const varPct=totInv>0?lucro/totInv*100:0;
   document.getElementById('metrics-row').innerHTML=`
-    <div class="metric"><div class="metric-label">Patrimônio atual</div><div class="metric-value">${fmt(totalAtual)}</div></div>
-    <div class="metric"><div class="metric-label">Total investido</div><div class="metric-value">${fmt(totalInvest)}</div></div>
-    <div class="metric"><div class="metric-label">Lucro / Prej.</div><div class="metric-value ${lucroTotal>=0?'positive':'negative'}">${fmt(lucroTotal)}</div><div class="metric-sub ${varTotal>=0?'positive':'negative'}">${varTotal>=0?'▲':'▼'} ${Math.abs(varTotal).toFixed(2)}%</div></div>
+    <div class="metric"><div class="metric-label">Patrimônio atual</div><div class="metric-value">${fmt(totAtual)}</div></div>
+    <div class="metric"><div class="metric-label">Total investido</div><div class="metric-value">${fmt(totInv)}</div></div>
+    <div class="metric"><div class="metric-label">Lucro / Prej.</div><div class="metric-value ${lucro>=0?'positive':'negative'}">${fmt(lucro)}</div><div class="metric-sub ${varPct>=0?'positive':'negative'}">${fmtPct(varPct)}</div></div>
     <div class="metric"><div class="metric-label">Ativos</div><div class="metric-value">${ativos.length}</div></div>
   `;
-
-  renderDonut(ativos);
-  renderTipoBars(ativos);
-  renderTabela(ativos);
-}
-
-function renderDonut(ativos){
   const ctx=document.getElementById('donut-chart').getContext('2d');
   if(donutChart){donutChart.destroy();}
-  if(!ativos.length){document.getElementById('donut-total').textContent='R$ 0';return;}
-  const valores=ativos.map(a=>{const va=calcValorAtual(a);return va!=null?va:(+(a.valor_investido||0));});
+  const valores=ativos.map(a=>{const v=calcVal(a);return v!=null?v:+(a.valor_investido||0);});
   const total=valores.reduce((s,v)=>s+v,0);
   document.getElementById('donut-total').textContent='R$ '+(total/1000).toFixed(1)+'k';
-  donutChart=new Chart(ctx,{type:'doughnut',data:{labels:ativos.map(a=>a.ticker),datasets:[{data:valores,backgroundColor:CORES,borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.label+': '+fmt(c.raw)}}}}});
+  if(ativos.length){
+    donutChart=new Chart(ctx,{type:'doughnut',data:{labels:ativos.map(a=>a.ticker),datasets:[{data:valores,backgroundColor:CORES,borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.label+': '+fmt(c.raw)}}}}});
+  }
   document.getElementById('donut-legend').innerHTML=ativos.map((a,i)=>{
-    const v=valores[i];const pct=total>0?(v/total*100).toFixed(1):0;
+    const pct=total>0?(valores[i]/total*100).toFixed(1):0;
     return `<div class="leg-item"><div class="leg-left"><span class="leg-dot" style="background:${CORES[i%CORES.length]}"></span>${a.ticker}</div><div class="leg-right">${pct}%</div></div>`;
   }).join('');
-}
-
-function renderTipoBars(ativos){
   const totais={};let grand=0;
-  ativos.forEach(a=>{const v=calcValorAtual(a)??(+(a.valor_investido||0));totais[a.tipo]=(totais[a.tipo]||0)+v;grand+=v;});
-  const el=document.getElementById('tipo-bars');
-  if(!Object.keys(totais).length){el.innerHTML='<p style="color:#8b949e;font-size:13px;text-align:center;padding:20px 0">Nenhum ativo</p>';return;}
-  el.innerHTML=Object.entries(totais).sort((a,b)=>b[1]-a[1]).map(([tipo,val])=>{
+  ativos.forEach((a,i)=>{totais[a.tipo]=(totais[a.tipo]||0)+valores[i];grand+=valores[i];});
+  document.getElementById('tipo-bars').innerHTML=Object.entries(totais).sort((a,b)=>b[1]-a[1]).map(([tipo,val])=>{
     const pct=grand>0?(val/grand*100).toFixed(1):0;
     return `<div class="bar-row"><div class="bar-label">${TIPO_LABEL[tipo]||tipo}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${TIPO_CORES[tipo]||'#8b949e'}"></div></div><div class="bar-pct">${pct}%</div></div>`;
-  }).join('');
+  }).join('')||'<p class="neutral" style="font-size:13px;text-align:center;padding:20px">Nenhum ativo</p>';
+  document.getElementById('tabela-ativos').innerHTML=ativos.length?ativos.map(a=>{
+    const pm=+(a.preco_medio||0),qtd=+(a.quantidade||0),inv=+(a.valor_investido||0);
+    const pa=dadosPrecos[a.ticker],va=pa!=null?qtd*pa:null,luc=va!=null?va-inv:null,vp=luc!=null&&inv>0?luc/inv*100:null;
+    return `<tr><td class="ticker">${a.ticker}</td><td><span class="badge badge-${a.tipo}">${TIPO_LABEL[a.tipo]||a.tipo}</span></td><td>${qtd.toLocaleString('pt-BR',{maximumFractionDigits:4})}</td><td>${fmt(pm)}</td><td>${pa!=null?fmt(pa):'<span class="neutral">—</span>'}</td><td>${fmt(inv)}</td><td>${va!=null?fmt(va):`<span class="neutral">${fmt(inv)}</span>`}</td><td>${luc!=null?`<span class="${luc>=0?'positive':'negative'}">${fmt(luc)}</span>`:'<span class="neutral">—</span>'}</td><td>${vp!=null?`<span class="${vp>=0?'positive':'negative'}">${fmtPct(vp)}</span>`:'<span class="neutral">—</span>'}</td></tr>`;
+  }).join(''):'<tr><td colspan="9" style="color:#8b949e;text-align:center;padding:24px">Nenhum ativo cadastrado</td></tr>';
 }
 
-function renderTabela(ativos){
-  const tbody=document.getElementById('tabela-ativos');
-  if(!ativos.length){tbody.innerHTML='<tr><td colspan="9" style="color:#8b949e;text-align:center;padding:24px">Nenhum ativo cadastrado</td></tr>';return;}
-  tbody.innerHTML=ativos.map(a=>{
-    const pm=+(a.preco_medio||0);
-    const qtd=+(a.quantidade||0);
-    const invest=+(a.valor_investido||0);
-    const precoAtual=dadosPrecos[a.ticker];
-    const valorAtual=precoAtual!=null?qtd*precoAtual:null;
-    const lucro=valorAtual!=null?valorAtual-invest:null;
-    const varPct=lucro!=null&&invest>0?(lucro/invest*100):null;
-    const precoCell=precoAtual!=null?fmt(precoAtual):'<span class="preco-loading">—</span>';
-    const valorCell=valorAtual!=null?fmt(valorAtual):`<span class="neutral">${fmt(invest)}</span>`;
-    const lucroCell=lucro!=null?`<span class="${lucro>=0?'positive':'negative'}">${fmt(lucro)}</span>`:'<span class="neutral">—</span>';
-    const varCell=varPct!=null?`<span class="${varPct>=0?'positive':'negative'}">${varPct>=0?'▲':'▼'}${Math.abs(varPct).toFixed(2)}%</span>`:'<span class="neutral">—</span>';
-    return `<tr>
-      <td class="ticker">${a.ticker}</td>
-      <td><span class="badge badge-${a.tipo}">${TIPO_LABEL[a.tipo]||a.tipo}</span></td>
-      <td>${qtd.toLocaleString('pt-BR',{maximumFractionDigits:4})}</td>
-      <td>${fmt(pm)}</td>
-      <td>${precoCell}</td>
-      <td>${fmt(invest)}</td>
-      <td>${valorCell}</td>
-      <td>${lucroCell}</td>
-      <td>${varCell}</td>
-    </tr>`;
-  }).join('');
+function renderAnalise(d){
+  if(!d||!d.risco){document.getElementById('analise-content').innerHTML='<div class="empty-state"><i class="ti ti-shield"></i>Cadastre ativos para ver a análise</div>';return;}
+  const r=d.risco;
+  const cor=r.score_risco<35?'#3fb950':r.score_risco<60?'#e3b341':r.score_risco<80?'#f85149':'#ff7b72';
+  document.getElementById('analise-content').innerHTML=`
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-shield-check"></i> Score de risco</div>
+        <div class="risco-gauge"><div class="risco-score" style="color:${cor}">${r.score_risco}</div><div class="risco-nivel" style="color:${cor}">${r.nivel_risco}</div><div style="font-size:12px;color:#8b949e;margin-top:8px">${r.n_ativos} ativos · ${r.n_tipos} categorias</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-chart-bar"></i> Concentração por tipo</div>
+        ${Object.entries(r.concentracao_por_tipo||{}).map(([tipo,pct])=>`<div class="bar-row"><div class="bar-label">${TIPO_LABEL[tipo]||tipo}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${TIPO_CORES[tipo]||'#8b949e'}"></div></div><div class="bar-pct">${pct}%</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-bulb"></i> Sugestões</div>
+      ${(r.sugestoes||[]).map(s=>`<div class="sugestao"><i class="ti ti-alert-triangle"></i>${s}</div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-list"></i> Concentração por ativo</div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Ticker</th><th>Tipo</th><th>Valor</th><th>% da carteira</th></tr></thead><tbody>
+        ${(r.concentracao_por_ativo||[]).map(a=>`<tr><td class="ticker">${a.ticker}</td><td><span class="badge badge-${a.tipo}">${TIPO_LABEL[a.tipo]||a.tipo}</span></td><td>${fmt(a.valor)}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="bar-track" style="width:100px"><div class="bar-fill" style="width:${a.pct}%;background:${TIPO_CORES[a.tipo]||'#8b949e'}"></div></div>${a.pct}%</div></td></tr>`).join('')}
+      </tbody></table></div>
+    </div>
+  `;
+}
+
+function renderHistorico(hist,analise){
+  const ctx=document.getElementById('historico-chart').getContext('2d');
+  if(histChart){histChart.destroy();}
+  if(!hist||!hist.length){
+    document.getElementById('historico-chart').parentElement.innerHTML='<div class="empty-state"><i class="ti ti-chart-line"></i>Histórico aparece após o primeiro acesso diário</div>';
+  }else{
+    histChart=new Chart(ctx,{type:'line',data:{labels:hist.map(h=>h.data),datasets:[{label:'Patrimônio',data:hist.map(h=>h.patrimonio),borderColor:'#58a6ff',backgroundColor:'rgba(88,166,255,0.08)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#58a6ff',tension:0.3,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}},scales:{x:{ticks:{color:'#8b949e',maxTicksLimit:8},grid:{color:'#21262d'}},y:{ticks:{color:'#8b949e',callback:v=>'R$'+(v/1000).toFixed(0)+'k'},grid:{color:'#21262d'}}}}});
+  }
+  const ibov=analise&&analise.vs_ibovespa;
+  if(!ibov||!ibov.rentabilidade_carteira_pct){
+    document.getElementById('ibov-content').innerHTML='<div class="empty-state"><i class="ti ti-chart-bar"></i>Dados insuficientes — registre ao menos uma compra</div>';
+    return;
+  }
+  const difPos=ibov.diferenca_pct>=0;
+  document.getElementById('ibov-content').innerHTML=`
+    <div class="ibov-compare">
+      <div class="ibov-card"><div class="ibov-label">Sua carteira</div><div class="ibov-val ${ibov.rentabilidade_carteira_pct>=0?'positive':'negative'}">${fmtPct(ibov.rentabilidade_carteira_pct)}</div><div class="ibov-sub">desde ${ibov.primeira_compra}</div></div>
+      <div class="ibov-card"><div class="ibov-label">Ibovespa</div><div class="ibov-val ${ibov.rentabilidade_ibovespa_pct>=0?'positive':'negative'}">${fmtPct(ibov.rentabilidade_ibovespa_pct)}</div><div class="ibov-sub">${ibov.periodo_dias} dias</div></div>
+    </div>
+    <div class="sugestao" style="background:${difPos?'#1a3a2a':'#3d1a1a'}"><i class="ti ti-${difPos?'trophy':'trending-down'}" style="color:${difPos?'#3fb950':'#f85149'}"></i>
+      Sua carteira ${difPos?'superou':'ficou abaixo d'}o Ibovespa em <strong>${Math.abs(ibov.diferenca_pct).toFixed(2)}%</strong> no período
+    </div>
+  `;
+}
+
+function renderAtivosList(ativos){
+  document.getElementById('tabela-ativos-lista').innerHTML=ativos.length?ativos.map(a=>`<tr><td style="color:#8b949e">${a.id}</td><td class="ticker">${a.ticker}</td><td><span class="badge badge-${a.tipo}">${TIPO_LABEL[a.tipo]||a.tipo}</span></td></tr>`).join(''):'<tr><td colspan="3" style="color:#8b949e;text-align:center;padding:20px">Nenhum ativo</td></tr>';
 }
 
 async function addAtivo(){
@@ -354,10 +400,7 @@ async function addPosicao(){
 }
 
 function showMsg(id,txt,tipo){
-  const el=document.getElementById(id);
-  el.className='msg '+(tipo==='ok'?'msg-ok':'msg-err');
-  el.textContent=txt;
-  setTimeout(()=>{el.textContent='';el.className='';},5000);
+  const el=document.getElementById(id);el.className='msg '+(tipo==='ok'?'msg-ok':'msg-err');el.textContent=txt;setTimeout(()=>{el.textContent='';el.className='';},5000);
 }
 </script>
 </body>
