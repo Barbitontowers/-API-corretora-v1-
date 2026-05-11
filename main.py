@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from datetime import datetime, timedelta
@@ -159,6 +160,15 @@ def add_posicao(
         print("🔥 ERRO POSICAO:", repr(e))
         raise HTTPException(status_code=500, detail="Erro ao registrar posição")
 
+
+
+
+# ---------- DASHBOARD ----------
+
+@app.get("/dashboard", response_class=HTMLResponse, tags=["Dashboard"])
+def dashboard():
+    with open("dashboard.html", "r", encoding="utf-8") as f:
+        return f.read()
 
 # ---------- CARTEIRA ----------
 
