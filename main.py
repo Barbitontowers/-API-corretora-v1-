@@ -1,11 +1,16 @@
+import os
+from pathlib import Path
+from datetime import datetime, timedelta
+
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from datetime import datetime, timedelta
 from pydantic import BaseModel
 import jwt
 import db
+
+BASE_DIR = Path(__file__).parent
 
 SECRET_KEY = "segredo_super_forte"
 ALGORITHM  = "HS256"
@@ -56,7 +61,7 @@ def home():
 
 @app.get("/dashboard", response_class=HTMLResponse, tags=["Dashboard"])
 def dashboard():
-    with open("dashboard.html", "r", encoding="utf-8") as f:
+    with open(BASE_DIR / "dashboard.html", "r", encoding="utf-8") as f:
         return f.read()
 
 
